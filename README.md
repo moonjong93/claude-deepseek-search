@@ -64,6 +64,13 @@ pi/deepseek-web-search.json    # pi extension config (model, timeouts, cache)
 install.sh / uninstall.sh
 ```
 
+## Security
+
+No credentials are stored in this repository. The installer reads the key from
+`DEEPSEEK_API_KEY`, `~/.pi/agent/auth.json`, or `~/.claude/deepseek-api-key`, and never prints it.
+The MCP server makes outbound requests only to `api.deepseek.com` (configurable via
+`DEEPSEEK_BASE_URL`) and runs `pi` locally when `deepseek_research` is used.
+
 ## Why the pi extension is forked
 
 The npm package sends the OpenAI-shaped `web_search` tool with a forced `tool_choice`. DeepSeek
@@ -72,6 +79,18 @@ ignored silently, so every query returned "I can't access live data" while still
 The fork uses the native `deepseek_web_search` tool (works on flash, ~4x cheaper, cannot be forced),
 fixes the price table, and bills the per-search fee. See
 `pi/extensions/pi-deepseek-web-search/LOCAL_MODIFICATIONS.md`.
+
+## Credits
+
+The pi extension is a modified copy of [pi-deepseek-web-search](https://github.com/zzwtsy/pi-deepseek-web-search)
+by [zzwtsy](https://github.com/zzwtsy) (MIT). The original license is kept at
+`pi/extensions/pi-deepseek-web-search/LICENSE`; the changes are listed in its `LOCAL_MODIFICATIONS.md`.
+
+Search and page content come from DeepSeek's [Search & Fetch API](https://api-docs.deepseek.com/guides/search).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ## Uninstall
 

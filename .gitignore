@@ -1,3 +1,9 @@
 *.bak
 .DS_Store
 node_modules/
+
+# never commit credentials or logs
+*.jsonl
+.env
+.env.*
+deepseek-api-key
