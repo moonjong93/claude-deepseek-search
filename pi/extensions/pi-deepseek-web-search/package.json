@@ -1,0 +1,55 @@
+{
+  "name": "pi-deepseek-web-search",
+  "type": "module",
+  "version": "0.2.1-local.1",
+  "packageManager": "pnpm@11.18.0",
+  "description": "[LOCAL FORK] DeepSeek-backed web search for pi \u2014 native deepseek_web_search tool, works on deepseek-flash",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zzwtsy/pi-deepseek-web-search.git"
+  },
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "web-search",
+    "search"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "README.zh.md",
+    "schema",
+    "src"
+  ],
+  "scripts": {
+    "clean": "rm -rf node_modules",
+    "check": "tsc --noEmit",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "gen:schema": "node scripts/generate-schema.ts"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "typebox": "*"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^9.2.0",
+    "@types/node": "^26.1.2",
+    "eslint": "^10.7.0",
+    "typescript": "6.0.3",
+    "vitest": "^4.1.10"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

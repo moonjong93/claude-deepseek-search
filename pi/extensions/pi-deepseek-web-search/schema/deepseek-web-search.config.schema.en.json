@@ -1,0 +1,215 @@
+{
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema URL for editor autocomplete/validation only; ignored at runtime."
+    },
+    "apiKey": {
+      "type": "string",
+      "minLength": 1,
+      "description": "DeepSeek API key (required). Env DEEPSEEK_API_KEY takes precedence."
+    },
+    "baseUrl": {
+      "type": "string",
+      "default": "https://api.deepseek.com",
+      "description": "API base URL; change when using a proxy. Overridable via DEEPSEEK_BASE_URL."
+    },
+    "model": {
+      "type": "string",
+      "default": "deepseek-v4-flash",
+      "minLength": 1,
+      "pattern": "^(?!\\s*$)",
+      "description": "Model name (free-form string). DeepSeek also supports deepseek-v4-flash-vision-exp, but this plugin sends text queries only and does not support image input. Pricing resolves via prices.models and falls back to top-level prices. Overridable via DEEPSEEK_MODEL."
+    },
+    "reasoningEffort": {
+      "type": "string",
+      "enum": [
+        "off",
+        "low",
+        "high",
+        "max"
+      ],
+      "default": "high",
+      "description": "Reasoning effort: off disables thinking, while low/high/max control the amount. This project defaults to high; when effort is omitted, DeepSeek enables thinking by default. Overridable via DEEPSEEK_REASONING_EFFORT."
+    },
+    "maxOutputTokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 384000,
+      "default": 4096,
+      "description": "Maximum output tokens for the answer; the official limit is 384K. Overridable via DEEPSEEK_MAX_OUTPUT_TOKENS."
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 30000,
+      "description": "Request timeout in ms. Overridable via DEEPSEEK_TIMEOUT_MS."
+    },
+    "cacheTtlMs": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 300000,
+      "description": "Search result cache TTL in ms. Overridable via DEEPSEEK_CACHE_TTL_MS."
+    },
+    "maxResultChars": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 50000,
+      "description": "Max chars returned to the LLM; longer text is truncated. Overridable via DEEPSEEK_MAX_RESULT_CHARS."
+    },
+    "prices": {
+      "type": "object",
+      "properties": {
+        "inputPerMillion": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 0.22,
+          "description": "Input price, cache miss, off-peak (USD / 1M tokens). Overridable via DEEPSEEK_PRICE_INPUT."
+        },
+        "cachedInputPerMillion": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 0.007,
+          "description": "Input price, cache hit, off-peak (USD / 1M tokens). Overridable via DEEPSEEK_PRICE_CACHED_INPUT."
+        },
+        "outputPerMillion": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 0.66,
+          "description": "Output price, off-peak (USD / 1M tokens). Overridable via DEEPSEEK_PRICE_OUTPUT."
+        },
+        "peak": {
+          "type": "object",
+          "required": [
+            "multiplier",
+            "hours"
+          ],
+          "properties": {
+            "multiplier": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Peak multiplier; official value is 2."
+            },
+            "hours": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "additionalItems": false,
+                "items": [
+                  {
+                    "type": "string",
+                    "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+                  }
+                ],
+                "minItems": 2
+              },
+              "minItems": 1,
+              "description": "Peak hour ranges, half-open [start, end); 09:00 counts as peak, 12:00 does not."
+            },
+            "weekendOffPeak": {
+              "type": "boolean",
+              "default": true,
+              "description": "After the official effective time, Saturday and Sunday are off-peak all day; set false to retain weekend peak pricing for a custom schedule."
+            }
+          },
+          "additionalProperties": false,
+          "default": {
+            "multiplier": 2,
+            "hours": [
+              [
+                "09:00",
+                "12:00"
+              ],
+              [
+                "14:00",
+                "18:00"
+              ]
+            ],
+            "weekendOffPeak": true
+          },
+          "description": "Peak-hour pricing: peak price = off-peak price × multiplier, applied to all billing items. Official weekday peak hours are 09:00-12:00 and 14:00-18:00 Beijing time; weekends are off-peak all day from 2026-08-23 00:00 Beijing time."
+        },
+        "models": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "properties": {
+                "inputPerMillion": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Input price, cache miss."
+                },
+                "cachedInputPerMillion": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Input price, cache hit."
+                },
+                "outputPerMillion": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Output price."
+                },
+                "peak": {
+                  "type": "object",
+                  "required": [
+                    "multiplier",
+                    "hours"
+                  ],
+                  "properties": {
+                    "multiplier": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "description": "Peak multiplier; official value is 2."
+                    },
+                    "hours": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "string",
+                            "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+                          },
+                          {
+                            "type": "string",
+                            "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+                          }
+                        ],
+                        "minItems": 2
+                      },
+                      "minItems": 1,
+                      "description": "Peak hour ranges, half-open [start, end); 09:00 counts as peak, 12:00 does not."
+                    },
+                    "weekendOffPeak": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "After the official effective time, Saturday and Sunday are off-peak all day; set false to retain weekend peak pricing for a custom schedule."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Peak-hour pricing: peak price = off-peak price × multiplier, applied to all billing items. Official weekday peak hours are 09:00-12:00 and 14:00-18:00 Beijing time; weekends are off-peak all day from 2026-08-23 00:00 Beijing time."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Per-model price override; missing fields fall back to top-level prices."
+            }
+          },
+          "description": "Per-model price overrides keyed by model name; a matching model takes precedence. Setting this field replaces the default table as a whole."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Pricing in USD per 1M tokens; defaults are the official off-peak prices, with the official peak schedule and weekend off-peak rule enabled by default."
+    }
+  },
+  "additionalProperties": false,
+  "description": "Generated by pnpm gen:schema from src/config-schema.ts — do not edit. 由 src/config-schema.ts 自动生成，请勿手改。",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "deepseek-web-search config (en)"
+}
